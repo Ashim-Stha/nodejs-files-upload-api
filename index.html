@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node.js File Uploader</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1.5rem;
+        background-color: #333;
+        color: whitesmoke;
+      }
+
+      input,
+      button {
+        font: inherit;
+        width: max-content;
+      }
+
+      form {
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 1.5rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Node.js File Uploader</h1>
+    <form id="uploadForm">
+      <input type="file" id="myFiles" accept="image/*" multiple />
+      <button>Submit</button>
+    </form>
+    <h2></h2>
+    <h3></h3>
+    <script>
+      const form = document.getElementById("uploadForm");
+
+      const sendFiles = async () => {
+        try {
+          // Get the files selected by the user from the input element with id "myFiles"
+          const myFiles = document.getElementById("myFiles").files;
+
+          // Create a new FormData object to hold the files
+          const formData = new FormData();
+
+          // Loop through each file in the FileList
+          Object.keys(myFiles).forEach((key) => {
+            console.log(myFiles);
+            // Append each file to the FormData object with the file's name as the key
+            formData.append(myFiles.item(key).name, myFiles.item(key));
+            console.log(myFiles.item(key));
+          });
+
+          // Send the FormData object containing the files to the server using a POST request
+          const response = await fetch("http://localhost:3500/upload", {
+            method: "POST",
+            body: formData, // The body of the request is the FormData object
+          });
+
+          // Check if the response is OK (status in the range 200-299)
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Try to parse the response as JSON
+          const json = await response.json();
+
+          // Update the text content of an h2 element with the status from the response
+          const h2 = document.querySelector("h2");
+          h2.textContent = `Status: ${json?.status}`;
+
+          // Update the text content of an h3 element with the message from the response
+          const h3 = document.querySelector("h3");
+          h3.textContent = json?.message;
+
+          // Log the JSON response to the console
+          console.log(json);
+        } catch (error) {
+          console.error("Error:", error);
+
+          // Handle the error appropriately in the UI
+          const h2 = document.querySelector("h2");
+          h2.textContent = "Error";
+
+          const h3 = document.querySelector("h3");
+          h3.textContent = error.message;
+        }
+      };
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        sendFiles();
+      });
+    </script>
+  </body>
+</html>
