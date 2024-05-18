@@ -39,55 +39,29 @@
       const form = document.getElementById("uploadForm");
 
       const sendFiles = async () => {
-        try {
-          // Get the files selected by the user from the input element with id "myFiles"
-          const myFiles = document.getElementById("myFiles").files;
+        // Object
+        const myFiles = document.getElementById("myFiles").files;
 
-          // Create a new FormData object to hold the files
-          const formData = new FormData();
+        const formData = new FormData();
 
-          // Loop through each file in the FileList
-          Object.keys(myFiles).forEach((key) => {
-            console.log(myFiles);
-            // Append each file to the FormData object with the file's name as the key
-            formData.append(myFiles.item(key).name, myFiles.item(key));
-            console.log(myFiles.item(key));
-          });
+        Object.keys(myFiles).forEach((key) => {
+          formData.append(myFiles.item(key).name, myFiles.item(key));
+        });
 
-          // Send the FormData object containing the files to the server using a POST request
-          const response = await fetch("http://localhost:3500/upload", {
-            method: "POST",
-            body: formData, // The body of the request is the FormData object
-          });
+        const response = await fetch("http://localhost:3500/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-          // Check if the response is OK (status in the range 200-299)
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+        const json = await response.json();
 
-          // Try to parse the response as JSON
-          const json = await response.json();
+        const h2 = document.querySelector("h2");
+        h2.textContent = `Status: ${json?.status}`;
 
-          // Update the text content of an h2 element with the status from the response
-          const h2 = document.querySelector("h2");
-          h2.textContent = `Status: ${json?.status}`;
+        const h3 = document.querySelector("h3");
+        h3.textContent = json?.message;
 
-          // Update the text content of an h3 element with the message from the response
-          const h3 = document.querySelector("h3");
-          h3.textContent = json?.message;
-
-          // Log the JSON response to the console
-          console.log(json);
-        } catch (error) {
-          console.error("Error:", error);
-
-          // Handle the error appropriately in the UI
-          const h2 = document.querySelector("h2");
-          h2.textContent = "Error";
-
-          const h3 = document.querySelector("h3");
-          h3.textContent = error.message;
-        }
+        console.log(json);
       };
 
       form.addEventListener("submit", (e) => {
